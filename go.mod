@@ -1,4 +1,4 @@
-module github.com/siper92/core-utils
+module github.com/siper92/go-core-utils
 
 go 1.20
 

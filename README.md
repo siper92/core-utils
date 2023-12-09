@@ -5,4 +5,8 @@
 3. Working with data types
 4. Database utils
 
-# Version: 1.0.1
+# Version: v1.0.3
+```bash
+git tag -a v1.0.3 -m "v1.0.3"
+git push origin v1.0.3
+```

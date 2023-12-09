@@ -86,6 +86,11 @@ func StopOnError(err interface{}) {
 	os.Exit(1)
 }
 
+func StopAndNotify(msg string, p ...interface{}) {
+	PrintError(msg, p...)
+	os.Exit(1)
+}
+
 func Warning(f string, a ...interface{}) {
 	color.Yellow(f, a...)
 }

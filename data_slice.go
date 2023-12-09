@@ -19,3 +19,15 @@ func FindElement[T any](arr []T, predicate func(T) bool) *T {
 
 	return nil
 }
+
+func GetFiltered[T any](arr []T, predicate func(T) bool) []T {
+	var result []T
+
+	for _, el := range arr {
+		if predicate(el) {
+			result = append(result, el)
+		}
+	}
+
+	return result
+}

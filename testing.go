@@ -72,27 +72,45 @@ func newMismatchError[T comparable](expected T, actual T) string {
 	return details.String()
 }
 
+func _addLinesNumbers(lines []string, diffs []int) []string {
+	formattedLines := make([]string, len(lines))
+
+	linesCount := len(lines)
+	padding := len(fmt.Sprintf("%d", linesCount)) + 1
+
+	for i, line := range lines {
+		linePadding := padding - len(fmt.Sprintf("%d", i+1))
+		isDiff := " "
+		if InArray(i+1, diffs) {
+			isDiff = "*"
+		}
+
+		formattedLines[i] = fmt.Sprintf("|%s%d%s|%s", strings.Repeat(" ", linePadding), i+1, isDiff, line)
+	}
+
+	return formattedLines
+}
+
+func addLinesNumbers[T comparable](actual, expected T) (string, string) {
+	paddedExpected := fmt.Sprintf("%v", expected)
+	paddedActual := fmt.Sprintf("%v", actual)
+
+	diff := getLineDifferenceInfo(expected, actual)
+	if len(diff) > 0 {
+		expectedLines := getLines(expected)
+		actualLines := getLines(actual)
+
+		paddedExpected = strings.Join(_addLinesNumbers(expectedLines, diff), "\n")
+		paddedActual = strings.Join(_addLinesNumbers(actualLines, diff), "\n")
+	}
+
+	return paddedExpected, paddedActual
+}
+
 func AMatchesBDetailed[T comparable](t *testing.T, expected T, actual T) {
 	if expected != actual {
-		paddedExpected := fmt.Sprintf("%v", expected)
-		paddedActual := fmt.Sprintf("%v", actual)
+		paddedExpected, paddedActual := addLinesNumbers(expected, actual)
 
-		diff := getLineDifferenceInfo(expected, actual)
-		if len(diff) > 0 {
-			expectedLines := getLines(expected)
-			actualLines := getLines(actual)
-			formattedExpectedLines := make([]string, len(expectedLines))
-			for i, line := range expectedLines {
-				formattedExpectedLines[i] = fmt.Sprintf("[ %d ]: %s", i+1, line)
-			}
-			formattedActualLines := make([]string, len(actualLines))
-			for i, line := range actualLines {
-				formattedActualLines[i] = fmt.Sprintf("[ %d ]: %s", i+1, line)
-			}
-
-			paddedExpected = strings.Join(formattedExpectedLines, "\n")
-			paddedActual = strings.Join(formattedActualLines, "\n")
-		}
 		t.Fatal(
 			fmt.Sprintf("\nExpected: \n%s\n%s\n%s\n\n%s",
 				paddedExpected,

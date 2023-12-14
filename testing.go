@@ -43,7 +43,7 @@ func getLineDifferenceInfo[T comparable](expected T, actual T) string {
 
 	var diffSummary []string
 	for index, line := range expectedLines {
-		if len(actualLines) < index {
+		if len(actualLines) <= index {
 			continue
 		}
 

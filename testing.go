@@ -91,7 +91,7 @@ func _addLinesNumbers(lines []string, diffs []int) []string {
 	return formattedLines
 }
 
-func addLinesNumbers[T comparable](actual, expected T) (string, string) {
+func addLinesNumbers[T comparable](expected, actual T) (string, string) {
 	paddedExpected := fmt.Sprintf("%v", expected)
 	paddedActual := fmt.Sprintf("%v", actual)
 

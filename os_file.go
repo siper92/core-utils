@@ -18,6 +18,18 @@ func FileExists(path string) bool {
 	return false
 }
 
+func CreateFilepathDir(filePath string) error {
+	dirPath := filepath.Dir(filePath)
+	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+		err := os.MkdirAll(dirPath, 0755)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func GetFileContent(path string) (*bytes.Buffer, error) {
 	var dat []byte
 	var err error

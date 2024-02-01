@@ -18,6 +18,15 @@ func FileExists(path string) bool {
 	return false
 }
 
+func IsDir(path string) bool {
+	if stat, err := os.Stat(path); err != nil {
+		ErrorWarning(err)
+		return false
+	} else {
+		return stat.IsDir()
+	}
+}
+
 func CreateFilepathDir(filePath string) error {
 	dirPath := filepath.Dir(filePath)
 	if _, err := os.Stat(dirPath); os.IsNotExist(err) {

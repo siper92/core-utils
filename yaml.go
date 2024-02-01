@@ -1,9 +1,8 @@
 package core_utils
 
 import (
-	"os"
-
 	"gopkg.in/yaml.v3"
+	"os"
 )
 
 func LoadStructFromFile(s interface{}, yamlPath string) error {

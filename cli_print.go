@@ -104,6 +104,10 @@ func AllowNotice() {
 	notice = true
 }
 
+func DisallowNotice() {
+	notice = true
+}
+
 func AllowDebug() {
 	debug = true
 }

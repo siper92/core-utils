@@ -12,7 +12,7 @@ type PackageImport struct {
 	Path  string `yaml:"path" validate:"required"`
 }
 
-type UsedPackages struct {
+type UsedPackage struct {
 	Package PackageImport `yaml:"package" validate:"required"`
 	UseStr  string        `yaml:"useStr" validate:"required"`
 }
@@ -22,4 +22,16 @@ type APIConfig struct {
 	Port           string   `yaml:"port" validate:"required"`
 	Mode           string   `yaml:"mode" validate:"omitempty,oneof=dev debug prod"`
 	AllowedOrigins []string `yaml:"allowed_origins"`
+}
+
+func (c *APIConfig) IsDev() bool {
+	return c.Mode == "dev"
+}
+
+func (c *APIConfig) IsDebug() bool {
+	return c.Mode == "debug"
+}
+
+func (c *APIConfig) IsProd() bool {
+	return c.Mode == "prod"
 }

@@ -101,6 +101,17 @@ func CamelCaseToSnakeCase(s string) string {
 	return strings.Trim(strings.ToLower(result), "_")
 }
 
+func SnakeCaseToCamelCase(s string) string {
+	parts := strings.Split(s, "_")
+	result := ""
+	for _, part := range parts {
+		result += FirstLetterToUpper(part)
+	}
+	result = strings.ToLower(result[0:1]) + result[1:]
+
+	return result
+}
+
 func GetContentBetween(start string, end string, content string) string {
 	startIndex := strings.Index(content, start)
 	if startIndex == -1 {

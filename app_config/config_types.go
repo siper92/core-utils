@@ -7,31 +7,39 @@ type Module struct {
 	RootPath string `yaml:"root_path" validate:"required"`
 }
 
-type PackageImport struct {
-	Alias string `yaml:"alias"`
-	Path  string `yaml:"path" validate:"required"`
+type BaseCliTool struct {
+	Module Module `yaml:"module" validate:"required"`
 }
 
-type UsedPackage struct {
-	Package PackageImport `yaml:"package" validate:"required"`
-	UseStr  string        `yaml:"useStr" validate:"required"`
+type BaseApp struct {
+	Module Module `yaml:"module" validate:"required"`
 }
 
-type APIConfig struct {
+type BaseAPI struct {
 	Version        string   `yaml:"version"`
 	Port           string   `yaml:"port" validate:"required"`
 	Mode           string   `yaml:"mode" validate:"omitempty,oneof=dev debug prod"`
 	AllowedOrigins []string `yaml:"allowed_origins"`
 }
 
-func (c *APIConfig) IsDev() bool {
+func (c *BaseAPI) IsDev() bool {
 	return c.Mode == "dev"
 }
 
-func (c *APIConfig) IsDebug() bool {
+func (c *BaseAPI) IsDebug() bool {
 	return c.Mode == "debug"
 }
 
-func (c *APIConfig) IsProd() bool {
+func (c *BaseAPI) IsProd() bool {
 	return c.Mode == "prod"
+}
+
+type PackageImport struct {
+	Alias string `yaml:"alias"`
+	Path  string `yaml:"path" validate:"required"`
+}
+
+type UseFunc struct {
+	Package PackageImport `yaml:"package" validate:"required"`
+	UseFunc string        `yaml:"use_func" validate:"required"`
 }

@@ -38,6 +38,22 @@ func GetDefaultConfigPath() string {
 		return prod
 	}
 
+	loadFiles := []string{
+		".conf.local.yaml",
+		".conf.prod.yaml",
+		".conf.demo.yaml",
+		".conf.dev.yaml",
+		DefaultConfigFile,
+	}
+
+	for _, file := range loadFiles {
+		path := filepath.Join(cwd, file)
+		if core_utils.FileExists(path) {
+			return path
+		}
+	}
+
+	core_utils.Debug("No config file found in " + cwd)
 	return filepath.Join(cwd, DefaultConfigFile)
 }
 

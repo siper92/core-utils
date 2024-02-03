@@ -96,6 +96,9 @@ func Test_GetDefaultConfigPath(t *testing.T) {
 		expected:      ".conf.yaml",
 		filesToCreate: []string{},
 	}, {
+		expected:      ".conf.yaml",
+		filesToCreate: []string{".conf.yaml"},
+	}, {
 		expected:      ".conf.local.yaml",
 		filesToCreate: []string{".conf.local.yaml"},
 	}, {
@@ -121,7 +124,7 @@ func Test_GetDefaultConfigPath(t *testing.T) {
 		expected, err = filepath.Abs(tc.expected)
 
 		if path != expected {
-			t.Errorf("Expected %s, got %s", tc.expected, path)
+			t.Errorf("Expected %s, got %s", expected, path)
 		}
 
 		for _, file := range tc.filesToCreate {

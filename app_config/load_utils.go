@@ -57,9 +57,10 @@ func LoadConfig[T interface{}](conf *T, file string) (*T, error) {
 	return conf, err
 }
 
-func LoadConfigFromString[T interface{}](conf *T, content []byte) (*T, error) {
+func LoadConfigFromString[T interface{}](conf *T, content string) (*T, error) {
 	core_utils.AllowNotice()
-	_content, err := prepContent(content)
+
+	_content, err := prepContent([]byte(content))
 	if err != nil {
 		return conf, err
 	}

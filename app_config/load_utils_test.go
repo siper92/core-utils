@@ -72,7 +72,7 @@ entity:
 	var conf *TestConf
 	var err error
 
-	conf, err = LoadConfigFromString(&TestConf{}, []byte(testContent))
+	conf, err = LoadConfigFromString(&TestConf{}, testContent)
 	if err != nil {
 		t.Errorf("Error loading config: %s", err)
 	}

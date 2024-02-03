@@ -102,6 +102,11 @@ func CamelCaseToSnakeCase(s string) string {
 }
 
 func SnakeCaseToCamelCase(s string) string {
+	if s == "" {
+		return ""
+	}
+
+	s = strings.Trim(s, "_")
 	parts := strings.Split(s, "_")
 	result := ""
 	for _, part := range parts {

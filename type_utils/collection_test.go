@@ -2,7 +2,7 @@ package type_utils
 
 import "testing"
 
-var _ Collection[TestItem] = (*NamedTypeCollection[TestItem])(nil)
+var _ Collection[TestItem] = (*SimpleCollection[TestItem])(nil)
 
 type TestItem struct {
 	key string

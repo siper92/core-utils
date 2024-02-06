@@ -1,4 +1,4 @@
-package core_utils
+package type_utils
 
 import (
 	"slices"

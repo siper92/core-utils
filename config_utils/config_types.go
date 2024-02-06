@@ -1,4 +1,4 @@
-package core_utils
+package config_utils
 
 const DefaultConfigFile = ".conf.yaml"
 

@@ -5,35 +5,24 @@ import "testing"
 var _ Collection[TestItem] = (*SimpleCollection[TestItem])(nil)
 
 type TestItem struct {
-	key string
+	name string
 }
 
-func (t TestItem) Key() string {
-	return t.key
+func (t TestItem) Name() string {
+	return t.name
 }
 
 func (t TestItem) Compare(other Comparable) Comparison {
-	val, ok := other.(TestItem)
-	if !ok {
-		return DifferentTypes
-	}
-
-	if t.key < val.key {
-		return LessThan
-	} else if t.key > val.key {
-		return GreaterThan
-	}
-
-	return Equal
+	return CompareItems(t, other)
 }
 
 func Test_BasicCollection(t *testing.T) {
 	collection := NewCollection[TestItem]()
 
-	collection.Add(TestItem{key: "a"})
-	collection.Add(TestItem{key: "z"})
-	collection.Add(TestItem{key: "s"})
-	collection.Add(TestItem{key: "d"})
+	collection.Add(TestItem{name: "a"})
+	collection.Add(TestItem{name: "z"})
+	collection.Add(TestItem{name: "s"})
+	collection.Add(TestItem{name: "d"})
 
 	if collection == nil {
 		t.Fatal("Collection not created")
@@ -42,7 +31,7 @@ func Test_BasicCollection(t *testing.T) {
 	}
 
 	if !collection.ContainsKey("d") {
-		t.Fatal("Collection does not contain key b")
+		t.Fatal("Collection does not contain name b")
 	}
 
 	collection.Remove("s")
@@ -53,30 +42,30 @@ func Test_BasicCollection(t *testing.T) {
 	}
 
 	collection.Sort()
-	if collection.Items()[0].Key() != "a" &&
-		collection.Items()[1].Key() != "d" &&
-		collection.Items()[2].Key() != "s" {
+	if collection.Slice()[0].Name() != "a" &&
+		collection.Slice()[1].Name() != "d" &&
+		collection.Slice()[2].Name() != "s" {
 		t.Fatal("Collection sort failed")
 	}
 
-	newItem := TestItem{key: "zzzz"}
+	newItem := TestItem{name: "zzzz"}
 	collection.Add(newItem)
 	if !collection.Contains(newItem) {
-		t.Errorf("Collection does not contain new item %s", newItem.Key())
+		t.Errorf("Collection does not contain new item %s", newItem.Name())
 	}
 
 	collection.Sort()
-	if collection.Items()[3].Key() != "zzzz" {
+	if collection.Slice()[3].Name() != "zzzz" {
 		t.Fatal("Collection sort failed")
 	}
 
-	collection.Add(TestItem{key: "bbb"})
+	collection.Add(TestItem{name: "bbb"})
 	collection.Sort()
-	if collection.Items()[0].Key() != "a" &&
-		collection.Items()[1].Key() != "bbb" &&
-		collection.Items()[2].Key() != "d" &&
-		collection.Items()[3].Key() != "s" &&
-		collection.Items()[4].Key() != "zzzz" {
+	if collection.Slice()[0].Name() != "a" &&
+		collection.Slice()[1].Name() != "bbb" &&
+		collection.Slice()[2].Name() != "d" &&
+		collection.Slice()[3].Name() != "s" &&
+		collection.Slice()[4].Name() != "zzzz" {
 		t.Fatal("Collection sort failed")
 	}
 }

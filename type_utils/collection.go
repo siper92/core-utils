@@ -30,7 +30,8 @@ type CollectionItem interface {
 
 type Collection[T CollectionItem] interface {
 	sort.Interface
-	Items() []T
+	Slice() []T
+	Map() map[string]T
 	Contains(i T) bool
 	ContainsKey(k string) bool
 	Remove(k string)
@@ -53,8 +54,17 @@ func NewCollection[T CollectionItem](items ...T) *SimpleCollection[T] {
 	return &SimpleCollection[T]{items: items}
 }
 
-func (c *SimpleCollection[T]) Items() []T {
+func (c *SimpleCollection[T]) Slice() []T {
 	return c.items
+}
+
+func (c *SimpleCollection[T]) Map() map[string]T {
+	m := make(map[string]T)
+	for _, item := range c.items {
+		m[item.Name()] = item
+	}
+
+	return m
 }
 
 func (c *SimpleCollection[T]) Add(item T) {

@@ -10,22 +10,28 @@ import (
 type Comparison int
 
 const (
-	Equal       Comparison = 0
-	LessThan    Comparison = -1
-	GreaterThan Comparison = 1
+	Equal          Comparison = 0
+	LessThan       Comparison = -1
+	GreaterThan    Comparison = 1
+	NotTheSameType Comparison = 1
 )
 
-type Comparable interface {
-	Compare(other Comparable) Comparison
+type ComparableItem interface {
+	Compare(other any) Comparison
 }
 
-type HasName interface {
+type ItemWithName interface {
 	Name() string
 }
 
+type ItemWithKey interface {
+	Key() string
+}
+
 type CollectionItem interface {
-	Comparable
-	HasName
+	ComparableItem
+	ItemWithName
+	ItemWithKey
 }
 
 type Collection[T CollectionItem] interface {
@@ -61,7 +67,7 @@ func (c *SimpleCollection[T]) Slice() []T {
 func (c *SimpleCollection[T]) Map() map[string]T {
 	m := make(map[string]T)
 	for _, item := range c.items {
-		m[item.Name()] = item
+		m[item.Key()] = item
 	}
 
 	return m
@@ -73,7 +79,7 @@ func (c *SimpleCollection[T]) Add(item T) {
 
 func (c *SimpleCollection[T]) Remove(n string) {
 	for i, val := range c.items {
-		if val.Name() == n {
+		if val.Key() == n || val.Name() == n {
 			c.items = append(c.items[:i], c.items[i+1:]...)
 			break
 		}
@@ -82,7 +88,7 @@ func (c *SimpleCollection[T]) Remove(n string) {
 
 func (c *SimpleCollection[T]) Get(n string) (noVal T) {
 	for _, item := range c.items {
-		if item.Name() == n {
+		if item.Name() == n || item.Key() == n {
 			return item
 		}
 	}
@@ -119,7 +125,7 @@ func (c *SimpleCollection[T]) Contains(i T) bool {
 
 func (c *SimpleCollection[T]) ContainsKey(n string) bool {
 	for _, item := range c.items {
-		if item.Name() == n {
+		if item.Key() == n {
 			return true
 		}
 	}
@@ -127,11 +133,22 @@ func (c *SimpleCollection[T]) ContainsKey(n string) bool {
 	return false
 }
 
-func getCompareValue(v interface{}) string {
+func getCompareValue(v any) string {
 	switch val := v.(type) {
+	case string:
+		return val
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64:
+		return fmt.Sprintf("%d", val)
 	case CollectionItem:
+		if val.Key() != "" {
+			return val.Key()
+		}
+
 		return val.Name()
-	case HasName:
+	case ItemWithKey:
+		return val.Key()
+	case ItemWithName:
 		return val.Name()
 	default:
 		core_utils.Debug("type comparison not implemented %T", v)
@@ -139,7 +156,7 @@ func getCompareValue(v interface{}) string {
 	}
 }
 
-func CompareItems(a, b interface{}) Comparison {
+func CompareItems(a, b any) Comparison {
 	if a == nil {
 		if a == b {
 			return Equal
@@ -150,16 +167,14 @@ func CompareItems(a, b interface{}) Comparison {
 		return GreaterThan
 	}
 
+	if fmt.Sprintf("%T", a) != fmt.Sprintf("%T", b) {
+		return NotTheSameType
+	}
+
 	compValA := getCompareValue(a)
 	compValB := getCompareValue(b)
 
-	if compValA == compValB {
-		return Equal
-	} else if compValA < compValB {
-		return LessThan
-	}
-
-	return GreaterThan
+	return CompareString(compValA, compValB)
 }
 
 func CompareString(a, b string) Comparison {

@@ -1,6 +1,9 @@
 package type_utils
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 var _ Collection[TestItem] = (*SimpleCollection[TestItem])(nil)
 
@@ -8,12 +11,16 @@ type TestItem struct {
 	name string
 }
 
-func (t TestItem) Name() string {
-	return t.name
+func (t TestItem) Compare(other any) Comparison {
+	return CompareItems(t, other)
 }
 
-func (t TestItem) Compare(other Comparable) Comparison {
-	return CompareItems(t, other)
+func (t TestItem) Key() string {
+	return strings.ToLower(t.name)
+}
+
+func (t TestItem) Name() string {
+	return t.name
 }
 
 func Test_BasicCollection(t *testing.T) {

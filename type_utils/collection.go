@@ -37,7 +37,7 @@ type Collection[T CollectionItem] interface {
 	Remove(k string)
 	Add(item T)
 	Get(k string) T
-	Sort()
+	Sort() Collection[T]
 }
 
 var _ Collection[CollectionItem] = (*SimpleCollection[CollectionItem])(nil)
@@ -90,10 +90,12 @@ func (c *SimpleCollection[T]) Get(n string) (noVal T) {
 	return noVal
 }
 
-func (c *SimpleCollection[T]) Sort() {
+func (c *SimpleCollection[T]) Sort() Collection[T] {
 	slices.SortFunc(c.items, func(i, j T) int {
 		return int(i.Compare(j))
 	})
+
+	return c
 }
 
 func (c *SimpleCollection[T]) Len() int { return len(c.items) }
@@ -154,6 +156,16 @@ func CompareItems(a, b interface{}) Comparison {
 	if compValA == compValB {
 		return Equal
 	} else if compValA < compValB {
+		return LessThan
+	}
+
+	return GreaterThan
+}
+
+func CompareString(a, b string) Comparison {
+	if a == b {
+		return Equal
+	} else if a < b {
 		return LessThan
 	}
 

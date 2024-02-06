@@ -1,4 +1,4 @@
-package app_collection
+package core_utils
 
 import (
 	"slices"
@@ -108,4 +108,18 @@ func (c *NamedTypeCollection[T]) ContainsKey(n string) bool {
 	}
 
 	return false
+}
+
+func CompareItems(a, b CollectionItem) Comparison {
+	if a == nil || b == nil {
+		return DifferentTypes
+	}
+
+	if a.Key() < b.Key() {
+		return LessThan
+	} else if a.Key() > b.Key() {
+		return GreaterThan
+	}
+
+	return Equal
 }

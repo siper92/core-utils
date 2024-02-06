@@ -1,4 +1,4 @@
-package app_collection
+package core_utils
 
 import "testing"
 

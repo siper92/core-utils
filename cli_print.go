@@ -74,18 +74,6 @@ func PrintAndPanic(err interface{}) {
 	panic(err)
 }
 
-func StopOnError(err interface{}) {
-	if err == nil {
-		return
-	}
-
-	if v, ok := err.(error); ok {
-		PrintError(v.Error())
-	}
-
-	os.Exit(1)
-}
-
 func StopAndNotify(msg string, p ...interface{}) {
 	PrintError(msg, p...)
 	os.Exit(1)

@@ -1,16 +1,52 @@
 package core_utils
 
 import (
-	"errors"
 	"fmt"
+	"os"
 )
 
-func NewError(params ...interface{}) error {
-	return errors.New(fmt.Sprintf(params[0].(string), params[1:]...))
+func PanicOnError(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
 
-func HandleWarning(_ any, err error) {
-	if err != nil {
-		fmt.Println(err.Error())
+func StopOnError(err interface{}) {
+	if err == nil {
+		return
+	}
+
+	if v, ok := err.(error); ok {
+		PrintError(v.Error())
+	}
+
+	os.Exit(1)
+}
+
+func StopOnPanicHandler() func() {
+	return func() {
+		if r := recover(); r != nil {
+			if err, ok := r.(error); ok {
+				StopOnError(err)
+			} else {
+				StopOnError(
+					fmt.Errorf("panic: %v", r),
+				)
+			}
+		}
+	}
+}
+
+func PrintPanicHandler() func() {
+	return func() {
+		if r := recover(); r != nil {
+			if err, ok := r.(error); ok {
+				PrintError(err.Error())
+			} else {
+				PrintError(
+					fmt.Sprintf("panic: %v", r),
+				)
+			}
+		}
 	}
 }

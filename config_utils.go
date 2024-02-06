@@ -1,8 +1,7 @@
-package app_config
+package core_utils
 
 import (
 	"fmt"
-	"github.com/siper92/core-utils"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -14,27 +13,27 @@ type ConfContent []byte
 func GetDefaultConfigPath() string {
 	cwd, err := os.Getwd()
 	if err != nil {
-		core_utils.Debug("Error getting current working directory: " + err.Error())
+		Debug("Error getting current working directory: " + err.Error())
 		return "./" + DefaultConfigFile
 	}
 
 	local := filepath.Join(cwd, strings.Replace(DefaultConfigFile, ".yaml", ".local.yaml", 1))
-	if core_utils.FileExists(local) {
+	if FileExists(local) {
 		return local
 	}
 
 	dev := filepath.Join(cwd, strings.Replace(DefaultConfigFile, ".yaml", ".dev.yaml", 1))
-	if core_utils.FileExists(dev) {
+	if FileExists(dev) {
 		return dev
 	}
 
 	demo := filepath.Join(cwd, strings.Replace(DefaultConfigFile, ".yaml", ".demo.yaml", 1))
-	if core_utils.FileExists(demo) {
+	if FileExists(demo) {
 		return demo
 	}
 
 	prod := filepath.Join(cwd, strings.Replace(DefaultConfigFile, ".yaml", ".prod.yaml", 1))
-	if core_utils.FileExists(prod) {
+	if FileExists(prod) {
 		return prod
 	}
 
@@ -48,12 +47,12 @@ func GetDefaultConfigPath() string {
 
 	for _, file := range loadFiles {
 		path := filepath.Join(cwd, file)
-		if core_utils.FileExists(path) {
+		if FileExists(path) {
 			return path
 		}
 	}
 
-	core_utils.Debug("No config file found in " + cwd)
+	Debug("No config file found in " + cwd)
 	return filepath.Join(cwd, DefaultConfigFile)
 }
 
@@ -65,7 +64,7 @@ func LoadConfig[T interface{}](conf *T, file string) (*T, error) {
 		return conf, err
 	}
 
-	err = core_utils.LoadStructFromBytes(
+	err = LoadStructFromBytes(
 		conf,
 		content,
 	)
@@ -74,19 +73,19 @@ func LoadConfig[T interface{}](conf *T, file string) (*T, error) {
 }
 
 func LoadConfigFromString[T interface{}](conf *T, content string) (*T, error) {
-	core_utils.AllowNotice()
+	AllowNotice()
 
 	_content, err := prepContent([]byte(content))
 	if err != nil {
 		return conf, err
 	}
 
-	err = core_utils.LoadStructFromBytes(
+	err = LoadStructFromBytes(
 		conf,
 		_content,
 	)
 
-	core_utils.DisallowNotice()
+	DisallowNotice()
 	return conf, err
 }
 
@@ -105,12 +104,12 @@ func GetConfigContent(file string) (ConfContent, error) {
 		configPath = filepath.Join(cwd, file)
 	}
 
-	configPath = core_utils.AbsPath(configPath)
+	configPath = AbsPath(configPath)
 
-	core_utils.AllowNotice()
-	core_utils.Notice("Loading config from " + configPath)
+	AllowNotice()
+	Notice("Loading config from " + configPath)
 
-	yamlFileContent, err := core_utils.GetFileContent(configPath)
+	yamlFileContent, err := GetFileContent(configPath)
 	if err != nil {
 		return _content, err
 	}
@@ -120,7 +119,7 @@ func GetConfigContent(file string) (ConfContent, error) {
 		return _content, err
 	}
 
-	core_utils.DisallowNotice()
+	DisallowNotice()
 
 	return _content, nil
 }

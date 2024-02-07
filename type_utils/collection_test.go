@@ -5,13 +5,13 @@ import (
 	"testing"
 )
 
-var _ Collection[TestItem] = (*SimpleCollection[TestItem])(nil)
+var _ ICollection[TestItem] = (*Collection[TestItem])(nil)
 
 type TestItem struct {
 	name string
 }
 
-func (t TestItem) Compare(other any) Comparison {
+func (t TestItem) CompareKey(other any) Comparison {
 	return CompareItems(t, other)
 }
 
@@ -32,18 +32,18 @@ func Test_BasicCollection(t *testing.T) {
 	collection.Add(TestItem{name: "d"})
 
 	if collection == nil {
-		t.Fatal("Collection not created")
+		t.Fatal("ICollection not created")
 	} else if collection.Len() != 4 {
 		t.Fatalf("Invalid length: %d", collection.Len())
 	}
 
 	if !collection.ContainsKey("d") {
-		t.Fatal("Collection does not contain name b")
+		t.Fatal("ICollection does not contain name b")
 	}
 
 	collection.Remove("s")
 	if collection.ContainsKey("s") {
-		t.Fatal("Collection remove failed")
+		t.Fatal("ICollection remove failed")
 	} else if collection.Len() != 3 {
 		t.Fatalf("Invalid length after remove: %d", collection.Len())
 	}
@@ -52,18 +52,18 @@ func Test_BasicCollection(t *testing.T) {
 	if collection.Slice()[0].Name() != "a" &&
 		collection.Slice()[1].Name() != "d" &&
 		collection.Slice()[2].Name() != "s" {
-		t.Fatal("Collection sort failed")
+		t.Fatal("ICollection sort failed")
 	}
 
 	newItem := TestItem{name: "zzzz"}
 	collection.Add(newItem)
 	if !collection.Contains(newItem) {
-		t.Errorf("Collection does not contain new item %s", newItem.Name())
+		t.Errorf("ICollection does not contain new item %s", newItem.Name())
 	}
 
 	collection.Sort()
 	if collection.Slice()[3].Name() != "zzzz" {
-		t.Fatal("Collection sort failed")
+		t.Fatal("ICollection sort failed")
 	}
 
 	collection.Add(TestItem{name: "bbb"})
@@ -73,6 +73,6 @@ func Test_BasicCollection(t *testing.T) {
 		collection.Slice()[2].Name() != "d" &&
 		collection.Slice()[3].Name() != "s" &&
 		collection.Slice()[4].Name() != "zzzz" {
-		t.Fatal("Collection sort failed")
+		t.Fatal("ICollection sort failed")
 	}
 }

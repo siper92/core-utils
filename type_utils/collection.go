@@ -10,61 +10,56 @@ import (
 type Comparison int
 
 const (
-	Equal          Comparison = 0
-	LessThan       Comparison = -1
-	GreaterThan    Comparison = 1
-	NotTheSameType Comparison = 1
+	Equal       Comparison = 0
+	LessThan    Comparison = -1
+	GreaterThan Comparison = 1
 )
-
-type ComparableItem interface {
-	Compare(other any) Comparison
-}
 
 type ItemWithName interface {
 	Name() string
 }
 
 type ItemWithKey interface {
+	CompareKey(other any) Comparison
 	Key() string
 }
 
 type CollectionItem interface {
-	ComparableItem
 	ItemWithName
 	ItemWithKey
 }
 
-type Collection[T CollectionItem] interface {
+type ICollection[T CollectionItem] interface {
 	sort.Interface
-	Slice() []T
-	Map() map[string]T
-	Contains(i T) bool
-	ContainsKey(k string) bool
-	Remove(k string)
 	Add(item T)
 	Get(k string) T
-	Sort() Collection[T]
+	Remove(k string)
+	Contains(i T) bool
+	ContainsKey(k string) bool
+	Sort() ICollection[T]
+	Slice() []T
+	Map() map[string]T
 }
 
-var _ Collection[CollectionItem] = (*SimpleCollection[CollectionItem])(nil)
+var _ ICollection[CollectionItem] = (*Collection[CollectionItem])(nil)
 
-type SimpleCollection[T CollectionItem] struct {
+type Collection[T CollectionItem] struct {
 	items []T
 }
 
-func NewCollection[T CollectionItem](items ...T) *SimpleCollection[T] {
+func NewCollection[T CollectionItem](items ...T) *Collection[T] {
 	if len(items) == 0 {
-		return &SimpleCollection[T]{items: make([]T, 0)}
+		return &Collection[T]{items: make([]T, 0)}
 	}
 
-	return &SimpleCollection[T]{items: items}
+	return &Collection[T]{items: items}
 }
 
-func (c *SimpleCollection[T]) Slice() []T {
+func (c *Collection[T]) Slice() []T {
 	return c.items
 }
 
-func (c *SimpleCollection[T]) Map() map[string]T {
+func (c *Collection[T]) Map() map[string]T {
 	m := make(map[string]T)
 	for _, item := range c.items {
 		m[item.Key()] = item
@@ -73,22 +68,22 @@ func (c *SimpleCollection[T]) Map() map[string]T {
 	return m
 }
 
-func (c *SimpleCollection[T]) Add(item T) {
+func (c *Collection[T]) Add(item T) {
 	c.items = append(c.items, item)
 }
 
-func (c *SimpleCollection[T]) Remove(n string) {
+func (c *Collection[T]) Remove(key string) {
 	for i, val := range c.items {
-		if val.Key() == n || val.Name() == n {
+		if val.CompareKey(key) == Equal {
 			c.items = append(c.items[:i], c.items[i+1:]...)
 			break
 		}
 	}
 }
 
-func (c *SimpleCollection[T]) Get(n string) (noVal T) {
+func (c *Collection[T]) Get(key string) (noVal T) {
 	for _, item := range c.items {
-		if item.Name() == n || item.Key() == n {
+		if item.CompareKey(key) == Equal {
 			return item
 		}
 	}
@@ -96,26 +91,26 @@ func (c *SimpleCollection[T]) Get(n string) (noVal T) {
 	return noVal
 }
 
-func (c *SimpleCollection[T]) Sort() Collection[T] {
+func (c *Collection[T]) Sort() ICollection[T] {
 	slices.SortFunc(c.items, func(i, j T) int {
-		return int(i.Compare(j))
+		return int(i.CompareKey(j))
 	})
 
 	return c
 }
 
-func (c *SimpleCollection[T]) Len() int { return len(c.items) }
-func (c *SimpleCollection[T]) Less(i, j int) bool {
+func (c *Collection[T]) Len() int { return len(c.items) }
+func (c *Collection[T]) Less(i, j int) bool {
 	a := c.items[i]
 	b := c.items[j]
 
-	return a.Compare(b) == LessThan
+	return a.CompareKey(b) == LessThan
 }
-func (c *SimpleCollection[T]) Swap(i, j int) { c.items[i], c.items[j] = c.items[j], c.items[i] }
+func (c *Collection[T]) Swap(i, j int) { c.items[i], c.items[j] = c.items[j], c.items[i] }
 
-func (c *SimpleCollection[T]) Contains(i T) bool {
+func (c *Collection[T]) Contains(i T) bool {
 	for _, item := range c.items {
-		if item.Compare(i) == Equal {
+		if item.CompareKey(i) == Equal {
 			return true
 		}
 	}
@@ -123,7 +118,7 @@ func (c *SimpleCollection[T]) Contains(i T) bool {
 	return false
 }
 
-func (c *SimpleCollection[T]) ContainsKey(n string) bool {
+func (c *Collection[T]) ContainsKey(n string) bool {
 	for _, item := range c.items {
 		if item.Key() == n {
 			return true
@@ -133,7 +128,7 @@ func (c *SimpleCollection[T]) ContainsKey(n string) bool {
 	return false
 }
 
-func getCompareValue(v any) string {
+func getValueKey(v any) string {
 	switch val := v.(type) {
 	case string:
 		return val
@@ -167,12 +162,8 @@ func CompareItems(a, b any) Comparison {
 		return GreaterThan
 	}
 
-	if fmt.Sprintf("%T", a) != fmt.Sprintf("%T", b) {
-		return NotTheSameType
-	}
-
-	compValA := getCompareValue(a)
-	compValB := getCompareValue(b)
+	compValA := getValueKey(a)
+	compValB := getValueKey(b)
 
 	return CompareString(compValA, compValB)
 }

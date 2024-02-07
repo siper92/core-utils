@@ -16,14 +16,17 @@ func StopOnError(err interface{}) {
 		return
 	}
 
-	if v, ok := err.(error); ok {
-		PrintError(v.Error())
+	switch x := err.(type) {
+	case error:
+		PrintError(x.Error())
+	default:
+		PrintError("FatalError[%T]: %v", x, x)
 	}
 
 	os.Exit(1)
 }
 
-func StopOnPanicHandler() func() {
+func StopOnPanic() func() {
 	return func() {
 		if r := recover(); r != nil {
 			if err, ok := r.(error); ok {
@@ -37,16 +40,30 @@ func StopOnPanicHandler() func() {
 	}
 }
 
-func PrintPanicHandler() func() {
+func RecoverPanicPrint() func() {
 	return func() {
 		if r := recover(); r != nil {
-			if err, ok := r.(error); ok {
-				PrintError(err.Error())
-			} else {
-				PrintError(
-					fmt.Sprintf("panic: %v", r),
-				)
+			switch x := r.(type) {
+			case error:
+				PrintError(x.Error())
+			default:
+				PrintError("panic[%T]: %v", x, x)
 			}
 		}
+	}
+}
+
+func RecoverPanicAsError(err *error) func() error {
+	return func() error {
+		if r := recover(); r != nil {
+			switch x := r.(type) {
+			case error:
+				*err = x
+			default:
+				*err = fmt.Errorf("panic[%T]: %v", r, r)
+			}
+		}
+
+		return nil
 	}
 }

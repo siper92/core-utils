@@ -26,7 +26,7 @@ func (s StructValidatorResult) SingleError() error {
 		}
 	}
 
-	return fmt.Errorf(strings.Join(messages, "|"))
+	return fmt.Errorf(strings.Join(messages, "\n"))
 }
 
 func ValidateGenericStruct(s interface{}) StructValidatorResult {

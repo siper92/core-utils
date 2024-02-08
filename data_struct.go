@@ -7,22 +7,16 @@ import (
 )
 
 func ValidateStruct(s interface{}) error {
-	err := validator.New().Struct(s)
-	if err != nil {
-		if _, ok := err.(*validator.InvalidValidationError); ok {
-			PrintError("Invalid Validation Error: %s", err.Error())
-			return nil
-		}
-
-		for _, err := range err.(validator.ValidationErrors) {
-			PrintValidationError(err)
-		}
-
-		Warning(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-		Warning("Config Parsing Error")
+	errors := ValidateGenericStruct(s)
+	for _, err := range errors {
+		PrintValidationError(err)
 	}
 
-	return err
+	if len(errors) > 0 {
+		return errors.SingleError()
+	}
+
+	return nil
 }
 
 func PrintValidationError(err validator.FieldError) {

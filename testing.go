@@ -3,7 +3,6 @@ package core_utils
 import (
 	"bytes"
 	"fmt"
-	"github.com/siper92/core-utils/type_utils"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -82,11 +81,14 @@ func _addLinesNumbers(lines []string, diffs []int) []string {
 	for i, line := range lines {
 		linePadding := padding - len(fmt.Sprintf("%d", i+1))
 		isDiff := " "
-		if type_utils.InArray(i+1, diffs) {
-			isDiff = "*"
+		lineNumber := i + 1
+		for _, s := range diffs {
+			if s == lineNumber {
+				isDiff = "*"
+			}
 		}
 
-		formattedLines[i] = fmt.Sprintf("|%s%d%s|%s", strings.Repeat(" ", linePadding), i+1, isDiff, line)
+		formattedLines[i] = fmt.Sprintf("|%s%d%s|%s", strings.Repeat(" ", linePadding), lineNumber, isDiff, line)
 	}
 
 	return formattedLines

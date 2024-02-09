@@ -25,7 +25,6 @@ type ItemWithKey interface {
 }
 
 type CollectionItem interface {
-	ItemWithName
 	ItemWithKey
 }
 
@@ -120,7 +119,7 @@ func (c *Collection[T]) Contains(i T) bool {
 
 func (c *Collection[T]) ContainsKey(n string) bool {
 	for _, item := range c.items {
-		if item.Key() == n {
+		if item.CompareKey(n) == Equal {
 			return true
 		}
 	}
@@ -136,11 +135,7 @@ func getValueKey(v any) string {
 		uint, uint8, uint16, uint32, uint64:
 		return fmt.Sprintf("%d", val)
 	case CollectionItem:
-		if val.Key() != "" {
-			return val.Key()
-		}
-
-		return val.Name()
+		return val.Key()
 	case ItemWithKey:
 		return val.Key()
 	case ItemWithName:

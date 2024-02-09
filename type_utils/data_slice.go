@@ -1,8 +1,8 @@
-package core_utils
+package type_utils
 
-func InArray[T comparable](str T, arr []T) bool {
+func InArray[T comparable](val T, arr []T) bool {
 	for _, s := range arr {
-		if s == str {
+		if s == val {
 			return true
 		}
 	}

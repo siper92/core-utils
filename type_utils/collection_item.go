@@ -7,6 +7,10 @@ import (
 )
 
 func getValueKey(v any) string {
+	if v == nil {
+		return ""
+	}
+
 	switch val := v.(type) {
 	case string:
 		return val
@@ -26,20 +30,17 @@ func getValueKey(v any) string {
 }
 
 func CompareItemsKeys(a, b any) int {
-	if a == nil {
-		if a == b {
-			return Equal
-		}
-
-		return LessThan
-	} else if b == nil {
-		return GreaterThan
-	}
-
 	compValA := getValueKey(a)
 	compValB := getValueKey(b)
 
 	return CompareString(compValA, compValB)
+}
+
+func CompareKeysInsensitive(a, b any) int {
+	valA := strings.ToLower(strings.TrimSpace(getValueKey(a)))
+	valB := strings.ToLower(strings.TrimSpace(getValueKey(b)))
+
+	return CompareString(valA, valB)
 }
 
 func CompareString(a, b string) int {
@@ -50,17 +51,4 @@ func CompareString(a, b string) int {
 	}
 
 	return GreaterThan
-}
-
-func CompareKeysInsensitive(a, b any) bool {
-	if a == nil {
-		return false
-	} else if b == nil {
-		return false
-	}
-
-	compValA := strings.ToLower(strings.TrimSpace(getValueKey(a)))
-	compValB := strings.ToLower(strings.TrimSpace(getValueKey(b)))
-
-	return compValA == compValB
 }

@@ -12,11 +12,11 @@ type TestItem struct {
 }
 
 func (t TestItem) KeyEqual(other any) bool {
-	return CompareKeysInsensitive(t, other)
+	return CompareKeysInsensitive(t, other) == Equal
 }
 
 func (t TestItem) Compare(other any) int {
-	return CompareItemsKeys(t, other)
+	return CompareKeysInsensitive(t, other)
 }
 
 func (t TestItem) Key() string {

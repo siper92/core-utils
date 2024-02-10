@@ -11,8 +11,8 @@ type TestItem struct {
 	name string
 }
 
-func (t TestItem) CompareKey(other any) Comparison {
-	return CompareItems(t, other)
+func (t TestItem) KeyMatch(other any) Comparison {
+	return CompareItemsKeys(t, other)
 }
 
 func (t TestItem) Key() string {

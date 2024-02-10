@@ -7,12 +7,10 @@ import (
 	"sort"
 )
 
-type Comparison int
-
 const (
-	Equal       Comparison = 0
-	LessThan    Comparison = -1
-	GreaterThan Comparison = 1
+	Equal       int = 0
+	LessThan    int = -1
+	GreaterThan int = 1
 )
 
 type ItemWithName interface {
@@ -20,12 +18,17 @@ type ItemWithName interface {
 }
 
 type ItemWithKey interface {
-	CompareKey(other any) Comparison
+	KeyEqual(other any) bool
 	Key() string
+}
+
+type ComparableItem interface {
+	Compare(other any) int
 }
 
 type CollectionItem interface {
 	ItemWithKey
+	ComparableItem
 }
 
 type ICollection[T CollectionItem] interface {
@@ -73,7 +76,7 @@ func (c *Collection[T]) Add(item T) {
 
 func (c *Collection[T]) Remove(key string) {
 	for i, val := range c.items {
-		if val.CompareKey(key) == Equal {
+		if val.KeyEqual(key) {
 			c.items = append(c.items[:i], c.items[i+1:]...)
 			break
 		}
@@ -82,7 +85,7 @@ func (c *Collection[T]) Remove(key string) {
 
 func (c *Collection[T]) Get(key string) (noVal T) {
 	for _, item := range c.items {
-		if item.CompareKey(key) == Equal {
+		if item.KeyEqual(key) {
 			return item
 		}
 	}
@@ -92,7 +95,7 @@ func (c *Collection[T]) Get(key string) (noVal T) {
 
 func (c *Collection[T]) Sort() ICollection[T] {
 	slices.SortFunc(c.items, func(i, j T) int {
-		return int(i.CompareKey(j))
+		return i.Compare(j)
 	})
 
 	return c
@@ -103,13 +106,13 @@ func (c *Collection[T]) Less(i, j int) bool {
 	a := c.items[i]
 	b := c.items[j]
 
-	return a.CompareKey(b) == LessThan
+	return a.Compare(b) == LessThan
 }
 func (c *Collection[T]) Swap(i, j int) { c.items[i], c.items[j] = c.items[j], c.items[i] }
 
 func (c *Collection[T]) Contains(i T) bool {
 	for _, item := range c.items {
-		if item.CompareKey(i) == Equal {
+		if item.KeyEqual(i) {
 			return true
 		}
 	}
@@ -119,7 +122,7 @@ func (c *Collection[T]) Contains(i T) bool {
 
 func (c *Collection[T]) ContainsKey(n string) bool {
 	for _, item := range c.items {
-		if item.CompareKey(n) == Equal {
+		if item.KeyEqual(n) {
 			return true
 		}
 	}
@@ -146,7 +149,7 @@ func getValueKey(v any) string {
 	}
 }
 
-func CompareItems(a, b any) Comparison {
+func CompareItemsKeys(a, b any) int {
 	if a == nil {
 		if a == b {
 			return Equal
@@ -163,7 +166,7 @@ func CompareItems(a, b any) Comparison {
 	return CompareString(compValA, compValB)
 }
 
-func CompareString(a, b string) Comparison {
+func CompareString(a, b string) int {
 	if a == b {
 		return Equal
 	} else if a < b {

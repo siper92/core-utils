@@ -11,7 +11,11 @@ type TestItem struct {
 	name string
 }
 
-func (t TestItem) KeyMatch(other any) Comparison {
+func (t TestItem) KeyEqual(other any) bool {
+	return t.Compare(other) == Equal
+}
+
+func (t TestItem) Compare(other any) int {
 	return CompareItemsKeys(t, other)
 }
 

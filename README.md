@@ -10,3 +10,8 @@
 git tag -a v1.0.3 -m "v1.0.3"
 git push origin v1.0.3
 ```
+
+# Go run tests
+```bash
+go test ./...
+```

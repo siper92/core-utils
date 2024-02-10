@@ -12,7 +12,7 @@ type TestItem struct {
 }
 
 func (t TestItem) KeyEqual(other any) bool {
-	return t.Compare(other) == Equal
+	return CompareKeysInsensitive(t, other)
 }
 
 func (t TestItem) Compare(other any) int {
@@ -78,5 +78,75 @@ func Test_BasicCollection(t *testing.T) {
 		collection.Slice()[3].Name() != "s" &&
 		collection.Slice()[4].Name() != "zzzz" {
 		t.Fatal("ICollection sort failed")
+	}
+}
+
+func Test_BasicCollection_Get_And_Keys(t *testing.T) {
+	collection := NewCollection[TestItem]()
+
+	collection.Add(TestItem{name: "aRt"})
+	collection.Add(TestItem{name: "Zaf"})
+	collection.Add(TestItem{name: "s"})
+	collection.Add(TestItem{name: "DaS"})
+	collection.Add(TestItem{name: "DaS aS "})
+
+	test := []struct {
+		name  string
+		key   string
+		found bool
+	}{
+		{
+			name:  "aRt",
+			key:   "art",
+			found: true,
+		},
+		{
+			name:  "Zaf",
+			key:   "zAf",
+			found: true,
+		},
+		{
+			name:  "s",
+			key:   "S",
+			found: true,
+		},
+		{
+			name:  "DaS",
+			key:   "daS",
+			found: true,
+		},
+		{
+			name:  "DaS aS ",
+			key:   "das as",
+			found: true,
+		},
+		{
+			name:  " NotFound ",
+			key:   "notfound",
+			found: false,
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			testItem := collection.Get(tt.key)
+			if testItem.Name() == "" {
+				if tt.found {
+					t.Fatalf("Test failed to find %s", tt.key)
+				} else {
+					collection.Add(TestItem{name: tt.name})
+					testItem = collection.Get(tt.key)
+					if testItem.Name() != tt.name {
+						t.Fatalf("Test failed to insert %s", tt.name)
+					}
+				}
+			} else {
+				if testItem.Name() != tt.name {
+					t.Fatalf("Test failed for %s, name is %s", tt.key, testItem.Name())
+				} else if !tt.found {
+					t.Fatalf("Test failed to not find %s", tt.key)
+				}
+			}
+		})
 	}
 }

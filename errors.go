@@ -53,8 +53,8 @@ func RecoverPanicPrint() func() {
 	}
 }
 
-func RecoverPanicAsError(err *error) func() error {
-	return func() error {
+func RecoverPanicAsError(err *error) func() {
+	return func() {
 		if r := recover(); r != nil {
 			switch x := r.(type) {
 			case error:
@@ -63,11 +63,7 @@ func RecoverPanicAsError(err *error) func() error {
 				*err = fmt.Errorf("panic[%T]: %v", r, r)
 			}
 
-			if IsDebugMode() {
-				StopOnError(*err)
-			}
+			DebugError(*err)
 		}
-
-		return nil
 	}
 }

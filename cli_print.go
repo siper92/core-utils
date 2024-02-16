@@ -14,17 +14,25 @@ import (
 	"github.com/fatih/color"
 )
 
-func PrintCallStack() {
-	ok := true
-	var file string
-	var lineN int
+func getCallStackLines() []string {
+	var lines []string
 	callerIndex := 1
-	for ok {
-		_, file, lineN, ok = runtime.Caller(callerIndex)
+	for {
+		_, file, lineN, ok := runtime.Caller(callerIndex)
 		if ok {
-			ErrorMessage(">> %s[%d]\n", file, lineN)
+			lines = append(lines, fmt.Sprintf(">> %s[%d]\n", file, lineN))
+			callerIndex++
+		} else {
+			break
 		}
-		callerIndex++
+	}
+
+	return lines
+}
+
+func PrintCallStack() {
+	for _, line := range getCallStackLines() {
+		PrintMessage(line)
 	}
 }
 
@@ -37,16 +45,23 @@ func PrintError(err string, params ...interface{}) {
 	ErrorMessage(strings.Repeat("#", val))
 
 	if IsDebugMode() {
-		PrintCallStack()
+		for _, line := range getCallStackLines() {
+			ErrorMessage(line)
+		}
 	}
 }
 
 func DebugError(err error) {
-	if err != nil && IsDebugMode() {
-		color.HiBlue("###################################################")
-		color.HiBlue(err.Error())
-		color.HiBlue("###################################################")
+	if err == nil || IsDebugMode() == false {
+		return
 	}
+
+	color.HiBlue("###################################################")
+	color.HiBlue(err.Error())
+	for _, line := range getCallStackLines() {
+		color.HiBlue(line)
+	}
+	color.HiBlue("###################################################")
 }
 
 func CliError(msg ...interface{}) {

@@ -14,18 +14,7 @@ import (
 	"github.com/fatih/color"
 )
 
-func PrintError(err string, params ...interface{}) {
-	errMessage := "### " + fmt.Sprintf(err, params...) + " ###"
-
-	val := int(math.Min(float64(len(errMessage)), 120))
-	ErrorMessage(strings.Repeat("#", val))
-	ErrorMessage(errMessage)
-	ErrorMessage(strings.Repeat("#", val))
-
-	if !debug {
-		return
-	}
-
+func PrintCallStack() {
 	ok := true
 	var file string
 	var lineN int
@@ -39,9 +28,24 @@ func PrintError(err string, params ...interface{}) {
 	}
 }
 
+func PrintError(err string, params ...interface{}) {
+	errMessage := "### " + fmt.Sprintf(err, params...) + " ###"
+
+	val := int(math.Min(float64(len(errMessage)), 120))
+	ErrorMessage(strings.Repeat("#", val))
+	ErrorMessage(errMessage)
+	ErrorMessage(strings.Repeat("#", val))
+
+	if IsDebugMode() {
+		PrintCallStack()
+	}
+}
+
 func DebugError(err error) {
-	if err != nil {
-		ImportantDebug(err.Error())
+	if err != nil && IsDebugMode() {
+		color.HiBlue("###################################################")
+		color.HiBlue(err.Error())
+		color.HiBlue("###################################################")
 	}
 }
 
@@ -109,14 +113,6 @@ func Notice(f string, a ...interface{}) {
 func Debug(f string, a ...interface{}) {
 	if IsDebugMode() {
 		color.Yellow(f, a...)
-	}
-}
-
-func ImportantDebug(f string, a ...interface{}) {
-	if IsDebugMode() {
-		color.HiBlue("###################################################")
-		color.HiBlue(f, a...)
-		color.HiBlue("###################################################")
 	}
 }
 

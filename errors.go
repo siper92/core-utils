@@ -62,6 +62,10 @@ func RecoverPanicAsError(err *error) func() error {
 			default:
 				*err = fmt.Errorf("panic[%T]: %v", r, r)
 			}
+
+			if IsDebugMode() {
+				StopOnError(*err)
+			}
 		}
 
 		return nil

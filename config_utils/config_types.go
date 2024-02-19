@@ -73,7 +73,7 @@ func (dbConf MySQLConfig) GetDNS() string {
 type RedisConfig struct {
 	Pass     string `yaml:"pass"`
 	Host     string `yaml:"host" validate:"required"`
-	Post     int    `yaml:"port" validate:"required"`
+	Port     int    `yaml:"port" validate:"required"`
 	Database int    `yaml:"database"`
 }
 
@@ -81,6 +81,6 @@ func (dbConf RedisConfig) GetAddr() string {
 	return fmt.Sprintf(
 		"%s:%d",
 		dbConf.Host,
-		dbConf.Post,
+		dbConf.Port,
 	)
 }

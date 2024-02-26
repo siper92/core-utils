@@ -21,5 +21,5 @@ func LoadStructFromBytes(s interface{}, data []byte) error {
 		return err
 	}
 
-	return ValidateStruct(s)
+	return ValidateAndWarn(s)
 }

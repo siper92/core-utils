@@ -1,12 +1,27 @@
 package core_utils
 
 import (
+	"errors"
 	"fmt"
 	"github.com/go-playground/validator/v10"
 	"strings"
 )
 
 type StructValidatorResult []validator.FieldError
+
+func (s StructValidatorResult) Error() string {
+	var messages []string
+	for _, err := range s {
+		var val validator.FieldError
+		if errors.As(err, &val) {
+			messages = append(messages, fmt.Sprintf("%s: %s", val.Field(), val.Tag()))
+		} else {
+			messages = append(messages, fmt.Sprintf("%T: %s", err, err.Error()))
+		}
+	}
+
+	return fmt.Sprint(strings.Join(messages, "\n"))
+}
 
 func (s StructValidatorResult) HasFieldErrorFor(field string) bool {
 	for _, err := range s {
@@ -18,39 +33,56 @@ func (s StructValidatorResult) HasFieldErrorFor(field string) bool {
 	return false
 }
 
-func (s StructValidatorResult) SingleError() error {
-	var messages []string
-	for _, err := range s {
-		if val, ok := err.(validator.FieldError); ok {
-			messages = append(messages, fmt.Sprintf("%s: %s", val.Field(), val.Tag()))
+func ValidateWithCustomFunc(s interface{}, validators map[string]validator.Func) StructValidatorResult {
+	validate := validator.New()
+	for field, fn := range validators {
+		err := validate.RegisterValidation(field, fn)
+		if err != nil {
+			ErrorWarning(err)
 		}
 	}
 
-	return fmt.Errorf(strings.Join(messages, "\n"))
-}
-
-func ValidateGenericStruct(s interface{}) StructValidatorResult {
-	validate := validator.New()
 	err := validate.Struct(s)
-	var result StructValidatorResult
 
 	if err != nil {
-		if _, ok := err.(*validator.InvalidValidationError); ok {
+		var invalidValidationError *validator.InvalidValidationError
+		if errors.As(err, &invalidValidationError) {
 			ErrorWarning(err)
 		}
 
-		if errors, ok := err.(validator.ValidationErrors); ok {
-			return StructValidatorResult(errors)
+		var _errors validator.ValidationErrors
+		if errors.As(err, &_errors) {
+			return StructValidatorResult(err.(validator.ValidationErrors))
 		}
 	}
 
-	return result
+	return nil
 }
 
-func IsValidEmail(email string) bool {
-	return ValidateGenericStruct(struct {
-		Email string `validate:"required,email"`
-	}{
-		Email: email,
-	}).HasFieldErrorFor("Email") == false
+func SimpleStructValidation(s interface{}) StructValidatorResult {
+	return ValidateWithCustomFunc(s, map[string]validator.Func{})
+}
+
+func ValidateAndWarn(s interface{}) error {
+	_errors := SimpleStructValidation(s)
+	if len(_errors) > 0 {
+		for _, err := range _errors {
+			FieldErrorWarning(err)
+		}
+	}
+
+	return _errors
+}
+
+func FieldErrorWarning(err validator.FieldError) {
+	var errMessage string
+	if err.Tag() == "required" {
+		errMessage = fmt.Sprintf("%s: %s", err.Tag(), err.StructNamespace())
+	} else if err.Tag() == "oneof" {
+		errMessage = fmt.Sprintf("%s: %s\n >>> %v alowed: %s", err.Tag(), err.StructNamespace(), err.Value(), err.Param())
+	} else {
+		errMessage = fmt.Sprintf("%s: %s\n >>> Value: %v", err.Tag(), err.StructNamespace(), err.Value())
+	}
+
+	Warning(errMessage)
 }

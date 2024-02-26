@@ -19,7 +19,7 @@ type BaseApp struct {
 
 type BaseAPI struct {
 	Version        string   `yaml:"version"`
-	Port           string   `yaml:"port" validate:"required"`
+	Port           int      `yaml:"port" validate:"required"`
 	Mode           string   `yaml:"mode" validate:"omitempty,oneof=dev debug prod"`
 	AllowedOrigins []string `yaml:"allowed_origins"`
 }

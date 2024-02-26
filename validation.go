@@ -4,36 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-playground/validator/v10"
-	"strings"
 )
 
-type StructValidatorResult []validator.FieldError
-
-func (s StructValidatorResult) Error() string {
-	var messages []string
-	for _, err := range s {
-		var val validator.FieldError
-		if errors.As(err, &val) {
-			messages = append(messages, fmt.Sprintf("%s: %s", val.Field(), val.Tag()))
-		} else {
-			messages = append(messages, fmt.Sprintf("%T: %s", err, err.Error()))
-		}
-	}
-
-	return fmt.Sprint(strings.Join(messages, "\n"))
+func SimpleStructValidation(s interface{}) error {
+	return ValidateWithCustomFunc(s, map[string]validator.Func{})
 }
 
-func (s StructValidatorResult) HasFieldErrorFor(field string) bool {
-	for _, err := range s {
-		if err.Field() == field {
-			return true
-		}
-	}
-
-	return false
-}
-
-func ValidateWithCustomFunc(s interface{}, validators map[string]validator.Func) StructValidatorResult {
+func ValidateWithCustomFunc(s interface{}, validators map[string]validator.Func) error {
 	validate := validator.New()
 	for field, fn := range validators {
 		err := validate.RegisterValidation(field, fn)
@@ -49,24 +26,31 @@ func ValidateWithCustomFunc(s interface{}, validators map[string]validator.Func)
 		if errors.As(err, &invalidValidationError) {
 			ErrorWarning(err)
 		}
+	}
 
-		var _errors validator.ValidationErrors
-		if errors.As(err, &_errors) {
-			return StructValidatorResult(err.(validator.ValidationErrors))
+	return err
+}
+
+func HasFieldError(field string, err error) bool {
+	if err == nil {
+		return false
+	}
+
+	if errors.As(err, &validator.ValidationErrors{}) {
+		for _, err := range err.(validator.ValidationErrors) {
+			if err.Field() == field {
+				return true
+			}
 		}
 	}
 
-	return nil
-}
-
-func SimpleStructValidation(s interface{}) StructValidatorResult {
-	return ValidateWithCustomFunc(s, map[string]validator.Func{})
+	return false
 }
 
 func ValidateAndWarn(s interface{}) error {
 	_errors := SimpleStructValidation(s)
-	if len(_errors) > 0 {
-		for _, err := range _errors {
+	if errors.As(_errors, &validator.ValidationErrors{}) {
+		for _, err := range _errors.(validator.ValidationErrors) {
 			FieldErrorWarning(err)
 		}
 	}

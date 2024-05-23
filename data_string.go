@@ -15,15 +15,28 @@ func ToStringPointer(s string) *string {
 }
 
 func ToString(s interface{}) string {
-	switch s.(type) {
+	switch val := s.(type) {
 	case string:
-		return s.(string)
+		return val
 	case *string:
-		return *s.(*string)
+		return *val
+	case []byte:
+		return string(val)
+	case *[]byte:
+		return string(*val)
 	case int:
-		return strconv.Itoa(s.(int))
+		return IntToString(val)
 	case *int:
-		return strconv.Itoa(*s.(*int))
+		return IntToString(*val)
+	case int32, int64, uint, uint32, uint64,
+		*int32, *int64, *uint, *uint32, *uint64:
+		return fmt.Sprintf("%d", val)
+	case float32, float64, *float32, *float64:
+		return fmt.Sprintf("%f", val)
+	case bool, *bool:
+		return fmt.Sprintf("%t", val)
+	case fmt.Stringer:
+		return val.String()
 	}
 
 	PrintWarningMessage("ToString: unknown type %T", s)

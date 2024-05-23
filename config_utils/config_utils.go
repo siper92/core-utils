@@ -11,50 +11,52 @@ import (
 
 type ConfContent []byte
 
-func GetDefaultConfigPath() string {
+func GetYamlConfigPath(file string) string {
+	if !strings.Contains(file, ".yaml") || file == "" {
+		return ""
+	}
+
 	cwd, err := os.Getwd()
 	if err != nil {
 		core_utils.Debug("Error getting current working directory: " + err.Error())
-		return "./" + DefaultConfigFile
+		cwd = "./"
 	}
 
-	local := filepath.Join(cwd, strings.Replace(DefaultConfigFile, ".yaml", ".local.yaml", 1))
+	local := filepath.Join(cwd, strings.Replace(file, ".yaml", ".local.yaml", 1))
 	if core_utils.FileExists(local) {
 		return local
 	}
 
-	dev := filepath.Join(cwd, strings.Replace(DefaultConfigFile, ".yaml", ".dev.yaml", 1))
+	dev := filepath.Join(cwd, strings.Replace(file, ".yaml", ".dev.yaml", 1))
 	if core_utils.FileExists(dev) {
 		return dev
 	}
 
-	demo := filepath.Join(cwd, strings.Replace(DefaultConfigFile, ".yaml", ".demo.yaml", 1))
+	demo := filepath.Join(cwd, strings.Replace(file, ".yaml", ".demo.yaml", 1))
 	if core_utils.FileExists(demo) {
 		return demo
 	}
 
-	prod := filepath.Join(cwd, strings.Replace(DefaultConfigFile, ".yaml", ".prod.yaml", 1))
+	prod := filepath.Join(cwd, strings.Replace(file, ".yaml", ".prod.yaml", 1))
 	if core_utils.FileExists(prod) {
 		return prod
 	}
 
-	loadFiles := []string{
-		".conf.local.yaml",
-		".conf.prod.yaml",
-		".conf.demo.yaml",
-		".conf.dev.yaml",
-		DefaultConfigFile,
+	base := filepath.Join(cwd, file)
+	if core_utils.FileExists(base) {
+		return base
 	}
 
-	for _, file := range loadFiles {
-		path := filepath.Join(cwd, file)
-		if core_utils.FileExists(path) {
-			return path
-		}
-	}
+	return ""
+}
 
-	core_utils.Debug("No config file found in " + cwd)
-	return filepath.Join(cwd, DefaultConfigFile)
+func GetDefaultYamlConfigPath() string {
+	return GetYamlConfigPath(DefaultConfigFile)
+}
+
+// Deprecated: use GetDefaultYamlConfigPath instead
+func GetDefaultConfigPath() string {
+	return GetYamlConfigPath(DefaultConfigFile)
 }
 
 func LoadConfig[T interface{}](conf *T, file string) (*T, error) {

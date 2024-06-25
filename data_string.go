@@ -40,39 +40,39 @@ func ToString(s interface{}) string {
 		return fmt.Sprintf("%d", val)
 	case *int:
 		if val == nil {
-			return ""
+			return "0"
 		}
 		return fmt.Sprintf("%d", *val)
 	case *int32:
 		if val == nil {
-			return ""
+			return "0"
 		}
 		return fmt.Sprintf("%d", *val)
 	case *int64:
 		if val == nil {
-			return ""
+			return "0"
 		}
 		return fmt.Sprintf("%d", *val)
 	case *uint:
 		if val == nil {
-			return ""
+			return "0"
 		}
 		return fmt.Sprintf("%d", *val)
 	case *uint32:
 		if val == nil {
-			return ""
+			return "0"
 		}
 		return fmt.Sprintf("%d", *val)
 	case float32, float64:
 		return fmt.Sprintf("%f", val)
 	case *float32:
 		if val == nil {
-			return ""
+			return "0"
 		}
 		return fmt.Sprintf("%f", *val)
 	case *float64:
 		if val == nil {
-			return ""
+			return "0"
 		}
 		return fmt.Sprintf("%f", *val)
 	case bool:

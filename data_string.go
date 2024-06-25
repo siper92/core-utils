@@ -28,13 +28,26 @@ func ToString(s interface{}) string {
 		return IntToString(val)
 	case *int:
 		return IntToString(*val)
-	case int32, int64, uint, uint32, uint64,
-		*int32, *int64, *uint, *uint32, *uint64:
+	case int32, int64, uint, uint32, uint64:
 		return fmt.Sprintf("%d", val)
-	case float32, float64, *float32, *float64:
+	case *int32:
+		return fmt.Sprintf("%d", *val)
+	case *int64:
+		return fmt.Sprintf("%d", *val)
+	case *uint:
+		return fmt.Sprintf("%d", *val)
+	case *uint32:
+		return fmt.Sprintf("%d", *val)
+	case float32, float64:
 		return fmt.Sprintf("%f", val)
-	case bool, *bool:
+	case *float32:
+		return fmt.Sprintf("%f", *val)
+	case *float64:
+		return fmt.Sprintf("%f", *val)
+	case bool:
 		return fmt.Sprintf("%t", val)
+	case *bool:
+		return fmt.Sprintf("%t", *val)
 	case fmt.Stringer:
 		return val.String()
 	}

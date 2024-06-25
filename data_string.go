@@ -15,6 +15,10 @@ func ToStringPointer(s string) *string {
 }
 
 func ToString(s interface{}) string {
+	if s == nil {
+		return ""
+	}
+
 	switch val := s.(type) {
 	case string:
 		return val
@@ -26,10 +30,10 @@ func ToString(s interface{}) string {
 		return string(*val)
 	case int:
 		return IntToString(val)
-	case *int:
-		return IntToString(*val)
 	case int32, int64, uint, uint32, uint64:
 		return fmt.Sprintf("%d", val)
+	case *int:
+		return IntToString(*val)
 	case *int32:
 		return fmt.Sprintf("%d", *val)
 	case *int64:

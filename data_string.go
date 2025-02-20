@@ -15,33 +15,78 @@ func ToStringPointer(s string) *string {
 }
 
 func ToString(s interface{}) string {
+	if s == nil {
+		return ""
+	}
+
 	switch val := s.(type) {
 	case string:
 		return val
 	case *string:
+		if val == nil {
+			return ""
+		}
 		return *val
 	case []byte:
 		return string(val)
 	case *[]byte:
+		if val == nil {
+			return ""
+		}
 		return string(*val)
 	case int:
-		return IntToString(val)
-	case *int:
-		return IntToString(*val)
-	case int32, int64, uint, uint32, uint64,
-		*int32, *int64, *uint, *uint32, *uint64:
 		return fmt.Sprintf("%d", val)
-	case float32, float64, *float32, *float64:
+	case int32, int64, uint, uint32, uint64:
+		return fmt.Sprintf("%d", val)
+	case *int:
+		if val == nil {
+			return "0"
+		}
+		return fmt.Sprintf("%d", *val)
+	case *int32:
+		if val == nil {
+			return "0"
+		}
+		return fmt.Sprintf("%d", *val)
+	case *int64:
+		if val == nil {
+			return "0"
+		}
+		return fmt.Sprintf("%d", *val)
+	case *uint:
+		if val == nil {
+			return "0"
+		}
+		return fmt.Sprintf("%d", *val)
+	case *uint32:
+		if val == nil {
+			return "0"
+		}
+		return fmt.Sprintf("%d", *val)
+	case float32, float64:
 		return fmt.Sprintf("%f", val)
-	case bool, *bool:
+	case *float32:
+		if val == nil {
+			return "0"
+		}
+		return fmt.Sprintf("%f", *val)
+	case *float64:
+		if val == nil {
+			return "0"
+		}
+		return fmt.Sprintf("%f", *val)
+	case bool:
 		return fmt.Sprintf("%t", val)
+	case *bool:
+		if val == nil {
+			return ""
+		}
+		return fmt.Sprintf("%t", *val)
 	case fmt.Stringer:
 		return val.String()
+	default:
+		return fmt.Sprintf("ToStringV2: unknown type %T", s)
 	}
-
-	PrintWarningMessage("ToString: unknown type %T", s)
-
-	return ""
 }
 
 type UrlString string

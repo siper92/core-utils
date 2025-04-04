@@ -239,8 +239,10 @@ func (c ConfContent) ReplaceCustomVars() (ConfContent, error) {
 		return c, err
 	}
 
+	normalizedCwd := strings.ReplaceAll(cwd, "\\", "/")
+
 	_content := string(c)
-	_content = strings.Replace(_content, "${cwd}", cwd, -1)
+	_content = strings.Replace(_content, "${cwd}", normalizedCwd, -1)
 
 	return ConfContent(_content), nil
 }

@@ -97,7 +97,7 @@ func GetConfigContent(file string) (ConfContent, error) {
 	var _content ConfContent
 
 	configPath := file
-	if configPath[0] != '/' {
+	if filepath.IsAbs(configPath) == false {
 		var cwd string
 		cwd, err = os.Getwd()
 		if err != nil {
